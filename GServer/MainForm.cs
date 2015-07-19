@@ -19,11 +19,10 @@ namespace GServer
 {
     public partial class MainForm : Form
     {
+        GameServer server = new GameServer();
         public MainForm()
         {
             InitializeComponent();
-
-            //StartServer();sds
         }
 
         private async Task GetPlayers()
@@ -66,7 +65,6 @@ namespace GServer
             watch.Stop();
             TimeSpan ts = watch.Elapsed;
 
-            // Format and display the TimeSpan value.
             string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
                 ts.Hours, ts.Minutes, ts.Seconds,
                 ts.Milliseconds / 10);
@@ -76,40 +74,20 @@ namespace GServer
         }
 
         public void UdpServer()
-        {
-            GameServer server = new GameServer();
-            server.TestUdpServer();
-        }
-
-        static void _NewRequestReceived(AppSession session, StringRequestInfo requestInfo)
-        {
-            switch (requestInfo.Key.ToUpper())
-            {
-                case("ECHO"):
-                    session.Send(requestInfo.Body);
-                    break;
-
-                case ("ADD"):
-                    session.Send(requestInfo.Parameters.Select(p => Convert.ToInt32(p)).Sum().ToString());
-                    break;
-
-                case ("MULT"):
-
-                    var result = 1;
-
-                    foreach (var factor in requestInfo.Parameters.Select(p => Convert.ToInt32(p)))
-                    {
-                        result *= factor;
-                    }
-
-                    session.Send(result.ToString());
-                    break;
-            }
+        {            
+            server.RunTestUdpServer();
         }
 
         private void StopServer_Click(object sender, EventArgs e)
         {
             InfoBox.Text += "Server Stopped";
+            server.StopServer();
+        }
+
+        private void TestClientBtn_Click( object sender, EventArgs e )
+        {
+            TestClient client = new TestClient( "192.168.0.101", 4444 );
+            client.SendMsg();
         }
 
     }

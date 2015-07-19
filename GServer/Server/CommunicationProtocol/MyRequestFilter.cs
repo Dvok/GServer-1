@@ -1,4 +1,5 @@
-﻿using SuperSocket.SocketBase.Protocol;
+﻿using GServer.Common;
+using SuperSocket.SocketBase.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace GServer.Server.CommunicationProtocol
                 return null;
             }
 
-            int dataLength = Convert.ToInt32( 
+            int commandLength = Convert.ToInt32( 
                 Encoding.ASCII.GetString(
                     _inputBuffer,
                     ProtocolHeaderKeyRepetitions,
@@ -62,15 +63,24 @@ namespace GServer.Server.CommunicationProtocol
                 ) 
             );
 
-            string Data = Encoding.ASCII.GetString(
+            string CommandKey = Encoding.ASCII.GetString(
                 _inputBuffer,
                 ProtocolHeaderKeyRepetitions + ProtocolDataLength,
-                dataLength 
+                commandLength 
+            );
+
+            byte[] guidBytes = Utils.SubArray<byte>( _inputBuffer, ProtocolHeaderKeyRepetitions + ProtocolDataLength + commandLength, 36 );
+            string Guid = Encoding.ASCII.GetString( guidBytes );
+
+            byte[] Object = Utils.SubArray<byte>( 
+                _inputBuffer,
+                ProtocolHeaderKeyRepetitions + ProtocolDataLength + commandLength + 36,
+                _inputBuffer.Length - ( ProtocolHeaderKeyRepetitions + ProtocolDataLength + commandLength + 36 ) 
             );
 
             rest = 0;
 
-            return new MyRequestInfo( Data.Substring( 0, 3 ), 15 );
+            return new MyRequestInfo( CommandKey, Guid, Object );
 
         }
 

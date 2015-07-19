@@ -16,6 +16,7 @@ namespace GServer.Server
         private IServerConfig m_Config;
         private IRootConfig m_RootConfig;
         private Encoding m_Encoding;
+        private MyServer server;
 
         private IServerConfig DefaultServerConfig
         {
@@ -42,15 +43,31 @@ namespace GServer.Server
             m_Config = DefaultServerConfig;
             m_RootConfig = new RootConfig();
             m_Encoding = new System.Text.UTF8Encoding();
+            server = new MyServer();
+            server.NewSessionConnected += server_NewSessionConnected;
+            server.SessionClosed += server_SessionClosed;
         }
 
-        public void TestUdpServer()
+        private void server_SessionClosed( MySession session, CloseReason value )
         {
-            var testServer = new MyServer();
+            throw new NotImplementedException();
+        }
 
-            ( ( MySetup )testServer ).Setup( m_RootConfig, m_Config );
+        void server_NewSessionConnected( MySession session )
+        {
+            session.Send( "Hello there." );
+        }
 
-            testServer.Start();          
+        public void RunTestUdpServer()
+        {
+            ( ( MySetup )server ).Setup( m_RootConfig, m_Config );
+
+            server.Start();          
+        }
+
+        public void StopServer()
+        {
+            server.Stop();
         }
 
 

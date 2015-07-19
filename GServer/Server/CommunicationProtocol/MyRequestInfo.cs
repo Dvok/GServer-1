@@ -7,25 +7,20 @@ using System.Threading.Tasks;
 
 namespace GServer.Server.CommunicationProtocol
 {
-    public class MyRequestInfo : IRequestInfo
+    public class MyRequestInfo : UdpRequestInfo
     {
-        private string key;
-        private int playerId;
-        public string Key
+        private byte[] packageObject;
+
+        public byte[] PackageObject
         {
-            get { return key; }
-            private set { key = value; }
-        }
-        public int PlayerId
-        {
-            get { return playerId; }
-            set { playerId = value; }
+            get { return packageObject; }
+            set { packageObject = value; }
         }
 
-        public MyRequestInfo( string Key, int PlayedId )
+        public MyRequestInfo( string Key, string SessionID, byte[] Object )
+            : base( Key, SessionID )
         {
-            this.Key = Key;
-            this.PlayerId = PlayedId;
+            this.PackageObject = Object;
         }
 
         public byte[] ToData()
@@ -33,9 +28,10 @@ namespace GServer.Server.CommunicationProtocol
             List<byte> data = new List<byte>();
 
             data.AddRange( Encoding.ASCII.GetBytes( Key ) );
-            data.AddRange( Encoding.ASCII.GetBytes( PlayerId.ToString() ) );
+            data.AddRange( Encoding.ASCII.GetBytes( SessionID ) );
+            data.AddRange( packageObject );
 
-            int expectedLen = 36 + 4;
+            int expectedLen = 36 + Key.Length + packageObject.Length;
             int maxLen = expectedLen - data.Count;
 
             if ( maxLen > 0 )
@@ -45,8 +41,6 @@ namespace GServer.Server.CommunicationProtocol
                     data.Add( 0x00 );
                 }
             }
-
-            //data.AddRange( Encoding.UTF8.GetBytes( Value ) );
 
             return data.ToArray();
         }

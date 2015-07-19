@@ -1,4 +1,7 @@
-﻿using System;
+﻿using GServer.Common;
+using GServer.Packages;
+using GServer.Server.CommunicationProtocol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -25,33 +28,39 @@ namespace GServer
 
             using ( Socket socket = new Socket( AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp ) )
             {
-                char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
-
-                Random rd = new Random( 1 );
 
                 StringBuilder sb = new StringBuilder();
 
-                var sessionID = Guid.NewGuid().ToString();
+                string sessionID = Guid.NewGuid().ToString();
 
                 for ( int i = 0; i < 1; i++ )
                 {
-                    sb.Append( chars[ rd.Next( 0, chars.Length - 1 ) ] );
+                    sb.Append( "$" ); //Protocol Header
+                    sb.Append( "005" ); //Operation length
+                    sb.Append( "LogIn" ); //Operation name
+                    
                     string command = sb.ToString();
 
-                    Console.WriteLine( "Client prepare sent:" + command );
+                    Player user = new Player( "test", "123qqq" );
+                    byte [] Object = Utils.ObjectToBytes( user );
 
-                    //cmdInfo.Value = command;
+                    MyRequestInfo Info = new MyRequestInfo( command, sessionID, Object );
 
-                    socket.SendTo( Encoding.ASCII.GetBytes( "OLOLOLO" ), serverAddress );
+                    socket.SendTo( Info.ToData(), serverAddress );
 
-                    Console.WriteLine( "Client sent:" + command );
-
+                    //socket.ReceiveTimeout = 1000;
                     string[] res = m_Encoding.GetString( ReceiveMessage( socket, serverAddress ).ToArray() ).Split( ' ' );
 
                 }
             }
         }
 
+        /// <summary>
+        ///  Works only when message passed filter.
+        /// </summary>
+        /// <param name="socket"></param>
+        /// <param name="serverAddress"></param>
+        /// <returns></returns>
         private List<byte> ReceiveMessage( Socket socket, EndPoint serverAddress )
         {
             int length = 1024;
