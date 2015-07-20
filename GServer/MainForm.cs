@@ -86,7 +86,7 @@ namespace GServer
 
         private void TestClientBtn_Click( object sender, EventArgs e )
         {
-            TestClient client = new TestClient( "192.168.0.101", 4444 );
+            TestClient client = new TestClient( "192.168.1.36", 4444 );
             client.SendMsg();
         }
 

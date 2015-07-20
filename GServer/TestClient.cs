@@ -49,7 +49,7 @@ namespace GServer
                     socket.SendTo( Info.ToData(), serverAddress );
 
                     //socket.ReceiveTimeout = 1000;
-                    string[] res = m_Encoding.GetString( ReceiveMessage( socket, serverAddress ).ToArray() ).Split( ' ' );
+                    //string[] res = m_Encoding.GetString( ReceiveMessage( socket, serverAddress ).ToArray() ).Split( ' ' );
 
                 }
             }

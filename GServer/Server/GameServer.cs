@@ -24,7 +24,7 @@ namespace GServer.Server
             {
                 return new ServerConfig
                 {
-                    Ip = "192.168.0.101",
+                    Ip = "192.168.1.36",
                     LogCommand = true,
                     MaxConnectionNumber = 1000,
                     Mode = SocketMode.Udp,
